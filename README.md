@@ -239,3 +239,6 @@ end
 The above changes are considered "painful". In the next lesson, we will learn to use some shortcuts with the pundit gem.
 
 ***
+
+Notes:
+- One security flaw in this app is that the /rails/db page is accessible.
