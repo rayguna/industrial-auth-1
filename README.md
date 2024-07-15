@@ -168,6 +168,36 @@ end
 
 #### D4. Hiding private users
 
+1. Use conditionals in the views/users/show.html.erb page to hide private users that are set to "Private" or not being followed. We encapsulate this within the variable truevalue which includes three conditions.  
+
+```
+<!-- app/views/users/show.html.erb -->
+
+<div class="row mb-4">
+  <div class="col-md-6 offset-md-3">
+    <%= render "users/user", user: @user %>
+  </div>
+</div>
+
+<% truevalue = current_user == @user || !@user.private? || current_user.leaders.include?(@user) %>
+
+<% if truevalue %>
+  <div class="row mb-2">
+    <div class="col-md-6 offset-md-3">
+      <%= render "users/profile_nav", user: @user %>
+    </div>
+  </div>
+
+  <% @user.own_photos.each do |photo| %>
+    <div class="row mb-4">
+      <div class="col-md-6 offset-md-3">
+        <%= render "photos/photo", photo: photo %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+```
+
 
 #### D5. Commenting on a photo
 
