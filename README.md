@@ -134,9 +134,37 @@ class PhotosController < ApplicationController
 end
 ```
 
-
 #### D3. Conditionals in the view templates
 
+1. On the html page, let's hide the links/buttons/icons that are not available to the user (e.g., the edit or delete font awesome links to photos should not be visible to the users).
+2. Use the conditional statement to show these buttons only if the current_user is the photo owner.
+
+```
+<!-- app/views/photos/_photo.html.erb -->
+
+<div class="card">
+  <div class="card-body py-3 d-flex align-items-center justify-content-between">
+    <h2 class="h5 m-0 p-0 d-flex align-items-center">
+      <%= image_tag photo.owner.avatar_image, class: "rounded-circle mr-2", width: 36 %>
+
+      <%= link_to photo.owner.username, user_path(photo.owner.username), class: "text-dark" %>
+    </h2>
+
+    <div>
+      <% if current_user == photo.owner %>
+        <%= link_to edit_photo_path(photo), class: "btn btn-link btn-sm text-muted" do %>
+          <i class="fas fa-edit fa-fw"></i>
+        <% end %>
+
+        <%= link_to photo, method: :delete, class: "btn btn-link btn-sm text-muted" do %>
+          <i class="fas fa-trash fa-fw"></i>
+        <% end %>
+      <% end %>
+      
+    </div>
+  </div>
+<!-- ... -->
+```
 
 #### D4. Hiding private users
 
