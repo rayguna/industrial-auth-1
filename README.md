@@ -201,6 +201,38 @@ end
 
 #### D5. Commenting on a photo
 
+1. Let's enable users to comment only public photos or photos of their leaders and not private photos. We will not allow comments if the current user is not the photo owner, the photo owner profile is private, and the current user does not follow the photo owner. Add a private method which is called before action:
+
+```
+# app/controllers/comments_controller.rb
+
+class CommentsController < ApplicationController
+  before_action :set_comment, only: %i[ show edit update destroy ]
+  before_action :is_an_authorized_user, only: [:destroy, :create]
+  # ...
+    def is_an_authorized_user
+      @photo = Photo.find(params.fetch(:comment).fetch(:photo_id))
+      if current_user != @photo.owner && @photo.owner.private? && !current_user.leaders.include?(@photo.owner)
+        redirect_back fallback_location: root_url, alert: "Not authorized"
+      end
+    end
+  # ...
+end
+```
+
+2. Also, link comment table to owner through photo, so the attributes can be accessed:
+
+```
+# app/models/comment.rb
+
+class Comment < ApplicationRecord
+  belongs_to :author, class_name: "User", counter_cache: true
+  belongs_to :photo, counter_cache: true
+  has_one :owner, through: :photo
+
+  validates :body, presence: true
+end
+```
 
 #### D6. Industrial authorization with pundit
 
