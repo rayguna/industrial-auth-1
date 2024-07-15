@@ -87,3 +87,65 @@ Rails.application.routes.draw do
   # ...
 ```
 However, you can delete not just your photos, but other people's as well.
+
+#### D2. Authorization in controller with before_action
+
+1. Controller is one level below the routing, where we can restrict and fix photo deletion to allow a user to only delete his/her photo and not other users'.  
+2. One way to restrict a user from deleting another user's photo is by adding an if-else statement within app/controllers/photos_controller.rb, as follows.
+
+```
+  # ...
+  def destroy
+    if current_user == @photo.owner
+      @photo.destroy
+
+      respond_to do |format|
+        format.html { redirect_back fallback_location: root_url, notice: "Photo was successfully destroyed." }
+        format.json { head :no_content }
+      end
+    else
+      redirect_back(fallback_location: root_url, notice: "Nice try, but that is not your photo.")
+    end
+  end
+  # ...
+```
+
+3. Alternatively, check the ownership on some other actions.using before_action as follows. Use this approach in place of the previous one.
+
+```
+# app/controllers/photos_controller.rb
+
+class PhotosController < ApplicationController
+  before_action :set_photo, only: %i[ show edit update destroy ]
+  before_action :ensure_current_user_is_owner, only: [:destroy, :update, :edit]
+  # ...
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_photo
+      @photo = Photo.find(params[:id])
+    end
+
+    def ensure_current_user_is_owner
+      if current_user != @photo.owner
+        redirect_back fallback_location: root_url, alert: "You're not authorized for that."
+      end
+    end
+  # ...
+end
+```
+
+
+#### D3. Conditionals in the view templates
+
+
+#### D4. Hiding private users
+
+
+#### D5. Commenting on a photo
+
+
+#### D6. Industrial authorization with pundit
+
+The above changes are considered "painful". In the next lesson, we will learn to use some shortcuts with the pundit gem.
+
+***
