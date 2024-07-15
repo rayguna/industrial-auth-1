@@ -238,6 +238,11 @@ end
 
 The above changes are considered "painful". In the next lesson, we will learn to use some shortcuts with the pundit gem.
 
+### E. Create a pull request
+
+1. First, create a branch from the head with: `git checkout -b rg_photogram_industrial_authorization`.
+2. Switch main to the earliest version of the app with: `git checkout 46772ee`.
+
 ***
 
 Notes:
