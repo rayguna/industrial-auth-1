@@ -270,8 +270,24 @@ Move main to a certain branch in three steps:
 1. Install pundit as follows:
   - add gem "pundit" to your Gemfile
   - type: `bundle install`.
+  - type in the terminal `rails g pundit:install`.
+  - Add `include Pundit`:
 
-2. Create a folder within app/ called policies/, and within it create a file called photo_policy.rb and a class and initialize and show methods as follows. 
+  ```
+  # app/controllers/application_controller.rb
+
+class ApplicationController
+  include Pundit
+# ...
+  ```
+
+2. Like Ajax, implementing pundit is a three-step process:
+  Step 1: Add before_action and/or before action to point to pundit authorization in the respectigve controllers, including the application_controller.
+  Step 2: Create the individual policy for each table controller (comments_policy, follow_requests_policy, likes_policy, etc.).
+  Step 3: Define the respective methods within each policy to return a true or false output.
+
+
+3. Create a folder within app/ called policies/, and within it create a file called photo_policy.rb and a class and initialize and show methods as follows. 
 
 
 ```

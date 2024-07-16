@@ -17,4 +17,6 @@ class PhotoPolicy
       photo.owner.followers.include?(user)
   end
 
+  
+
 end
