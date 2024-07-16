@@ -244,8 +244,14 @@ end
 
 ## II. Industrial Authorization Using Pundit
 
+Create a new branch
 1. The above changes are considered "painful". In the next lesson, we will learn to use some shortcuts with the pundit gem.
 2. create a new branch: `git checkout -b rg_authorization_with_pundit`. Publish the branch.
+
+Move main to a certain branch in three steps:
+1. git checkout main
+2. git reset --hard <commit-hash>
+3. git push origin main --force
 
 #### Objectives
 
@@ -258,6 +264,87 @@ end
 7. secure-by-default
 
 ***
+
+#### A. Create Pundit policies
+
+1. Install pundit as follows:
+  - add gem "pundit" to your Gemfile
+  - type: `bundle install`.
+
+2. Create a folder within app/ called policies/, and within it create a file called photo_policy.rb and a class and initialize and show methods as follows. 
+
+
+```
+# app/policies/photo_policy.rb
+
+class PhotoPolicy
+  attr_reader :user, :photo
+
+  def initialize(user, photo)
+    @user = user
+    @photo = photo
+  end
+end
+
+# Our policy is that a photo should only be seen by the owner or followers
+#   of the owner, unless the owner is not private in which case anyone can
+#   see it
+def show?
+    user == photo.owner ||
+      !photo.owner.private? ||
+      photo.owner.followers.include?(user)
+  end
+end
+```
+
+3. Populate tables with `rake sample_data`.
+
+4. Test if the policy is applied successfully as follows:
+- First, get two users:
+
+```
+[1] pry(main)> alice = User.first
+=> #<User id: 15>
+[2] pry(main)> bob = User.second
+=> #<User id: 16>
+```
+
+- Check followers and private status:
+
+```
+[3] pry(main)> alice.followers.include?(bob)
+=> false
+[4] pry(main)> alice.private?
+=> true
+```
+
+- Get one of alice's photo:
+
+```
+photo = alice.own_photos.first
+```
+
+- First, we instantiate a policy for Alice, policy_a, and based on our .show? method, we check the visibility:
+
+```
+[6] pry(main)> policy_a = PhotoPolicy.new(alice, photo)
+=> #<PhotoPolicy:0x00007fca9886d8e0>
+[7] pry(main)> policy_a.show?
+=> true
+```
+
+- Do the same for Bob:
+
+```
+[8] pry(main)> policy_b = PhotoPolicy.new(bob, photo)
+=> #<PhotoPolicy:0x00007fca5fa3a6e8>
+[9] pry(main)> policy_b.show?
+=> false
+```
+
+#### B. Use before_action
+
+1. 
 
 Notes:
 - One security flaw in this app is that the /rails/db page is accessible.
