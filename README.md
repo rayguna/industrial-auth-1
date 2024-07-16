@@ -239,7 +239,8 @@ end
 #### E. Create a pull request
 
 1. First, create a branch from the head with: `git checkout -b rg_photogram_industrial_authorization`. Publish the branch.
-2. Switch main to the earliest version of the app with: `git checkout 46772ee`.
+2. Switch main to the earliest version of the app with: `git reset --hard 46772ee`.
+3. Update main `git push origin main --force`.
 
 ## II. Industrial Authorization Using Pundit
 
