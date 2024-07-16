@@ -206,26 +206,26 @@ end
 1. Let's enable users to comment only public photos or photos of their leaders and not private photos. We will not allow comments if the current user is not the photo owner, the photo owner profile is private, and the current user does not follow the photo owner. Add a private method which is called before action:
 
 ```
-# app/controllers/comments_controller.rb
+#app/controllers/comments_controller.rb
 
 class CommentsController < ApplicationController
   before_action :set_comment, only: %i[ show edit update destroy ]
   before_action :is_an_authorized_user, only: [:destroy, :create]
-  # ...
+  #...
     def is_an_authorized_user
       @photo = Photo.find(params.fetch(:comment).fetch(:photo_id))
       if current_user != @photo.owner && @photo.owner.private? && !current_user.leaders.include?(@photo.owner)
         redirect_back fallback_location: root_url, alert: "Not authorized"
       end
     end
-  # ...
+  #...
 end
 ```
 
 2. Also, link comment table to owner through photo, so the attributes can be accessed:
 
 ```
-# app/models/comment.rb
+#app/models/comment.rb
 
 class Comment < ApplicationRecord
   belongs_to :author, class_name: "User", counter_cache: true
@@ -274,15 +274,16 @@ Move main to a certain branch in three steps:
   - Add `include Pundit`:
 
   ```
-  # app/controllers/application_controller.rb
+  #app/controllers/application_controller.rb
 
 class ApplicationController
   include Pundit
-# ...
+#...
   ```
 
 2. Like Ajax, implementing pundit is a three-step process:
-  Step 1: Add before_action and/or before action to point to pundit authorization in the respectigve controllers, including the application_controller.
+  Step 1: Add before_action to point to pundit authorization in the respective controllers, including the application_controller.
+          Declare the same instances and objects declared within the corresponding controller in the _policy.rb file. 
   Step 2: Create the individual policy for each table controller (comments_policy, follow_requests_policy, likes_policy, etc.).
   Step 3: Define the respective methods within each policy to return a true or false output.
 
@@ -291,7 +292,7 @@ class ApplicationController
 
 
 ```
-# app/policies/photo_policy.rb
+#app/policies/photo_policy.rb
 
 class PhotoPolicy
   attr_reader :user, :photo
@@ -302,9 +303,10 @@ class PhotoPolicy
   end
 end
 
-# Our policy is that a photo should only be seen by the owner or followers
-#   of the owner, unless the owner is not private in which case anyone can
-#   see it
+#Our policy is that a photo should only be seen by the owner or followers
+#of the owner, unless the owner is not private in which case anyone can
+#see it
+
 def show?
     user == photo.owner ||
       !photo.owner.private? ||
@@ -363,14 +365,14 @@ photo = alice.own_photos.first
 1. Apply before_action as follows:
 
 ```
-# app/controllers/photos_controller.rb
+#app/controllers/photos_controller.rb
 
 class PhotosController < ApplicationController
   before_action :set_photo, only: %i[ show edit update destroy ]
   before_action :ensure_current_user_is_owner, only: [:destroy, :update, :edit]
   before_action :ensure_user_is_authorized, only: [:show]
   
-  # ...
+  #...
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_photo
@@ -388,7 +390,7 @@ class PhotosController < ApplicationController
         redirect_back fallback_location: root_url
       end
     end
-  # ...
+  #...
 end
 ```
 
@@ -400,18 +402,18 @@ Navigating into a private user's photo should not be allowed. For example, looki
 1. Let's raise an exception and generate an error message instead of redirecting if the current_user is not authorized as follows.
 
 ```
-# app/controllers/photos_controller.rb
+#app/controllers/photos_controller.rb
 
 class PhotosController < ApplicationController
-  # ...
+  #...
   before_action :ensure_user_is_authorized, only: [:show]
-  # ...
+  #...
     def ensure_user_is_authorized
       if !PhotoPolicy.new(current_user, @photo).show?
         raise Pundit::NotAuthorizedError, "not allowed"
       end
     end
-  # ...
+  #...
 end
 ```
 
@@ -420,10 +422,10 @@ I tried to visit https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/alethia
 - Alternatively, we can redirect with a flash message, as follows:
 
 ```
-# app/controllers/application_controller.rb
+#app/controllers/application_controller.rb
 
 class ApplicationController
-  # ...
+  #...
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
@@ -436,5 +438,105 @@ class ApplicationController
 end
 ```
 
-Notes:
+- Another shorthandthat we can adapt using Pundit is changing:
+
+```
+#app/controllers/photos_controller.rb
+
+class PhotosController < ApplicationController
+  #...
+  before_action :ensure_user_is_authorized, only: [:show]
+  #...
+    def ensure_user_is_authorized
+      if !PhotoPolicy.new(current_user, @photo).show?
+        raise Pundit::NotAuthorizedError, "not allowed"
+      end
+    end
+  #...
+end
+```
+
+with
+
+```
+#app/controllers/photos_controller.rb
+
+class PhotosController < ApplicationController
+  #...
+  def show
+    authorize @photo
+  end
+  #...
+end
+```
+
+When you pass the authorize method an instance of Photo:
+
+- It assumes there is a class called PhotoPolicy in app/policies.
+
+- It assumes there is a method called current_user.
+
+- It passes current_user as the first argument and whatever you pass to authorize as the second argument to a new instance of PhotoPolicy.
+
+- It calls a method named after the action with a ? appended on the new policy instance.
+
+- If it gets back false, it raises Pundit::NotAuthorizedError.
+
+To dos:
+- For ecah table, create the corresponding _policy.rb files.
+- update the _controller files.
+- update the relevant methods within the _policy files as it applies to the allowed actions. For example, for photos the relevant actions are create and destroy (like and un-like). For follow_requestsm the relevant actions are create, destroy, and update (request/un-request).
+
+#### D. Views with Pundit
+
+1. Define a show? method in our user’s policy, like so:
+
+```
+# app/policies/user_policy.rb
+
+class UserPolicy
+  attr_reader :current_user, :user
+
+  def initialize(current_user, user)
+    @current_user = current_user
+    @user = user
+  end
+
+  def show?
+    user == current_user ||
+     !user.private? || 
+     user.followers.include?(current_user)
+  end
+
+  def feed?
+    true
+  end
+
+end
+```
+
+Change the view template conditional from:
+
+```
+<!-- app/views/users/show.html.erb -->
+
+<!-- ... -->
+<% if current_user == @user || !@user.private? || current_user.leaders.include?(@user) %>
+  <!-- ... -->
+<% end %>
+```
+
+To:
+
+```
+<!-- app/views/users/show.html.erb -->
+
+<!-- ... -->
+<% if policy(@user).show? %>
+  <!-- ... -->
+<% end %>
+```
+
+
+#### Notes:
 - One security flaw in this app is that the /rails/db page is accessible.
