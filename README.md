@@ -6,6 +6,8 @@ Video: https://share.descript.com/view/qqL5sX534E1
 
 Lesson: https://learn.firstdraft.com/lessons/201-photogram-industrial-authorization
 
+## I. Photogram Industrial Authorization - the long way
+
 ### A. Objectives:
 - Hide certain routes, such as:
   - /comments
@@ -234,14 +236,25 @@ class Comment < ApplicationRecord
 end
 ```
 
-#### D6. Industrial authorization with pundit
+#### E. Create a pull request
 
-The above changes are considered "painful". In the next lesson, we will learn to use some shortcuts with the pundit gem.
-
-### E. Create a pull request
-
-1. First, create a branch from the head with: `git checkout -b rg_photogram_industrial_authorization`.
+1. First, create a branch from the head with: `git checkout -b rg_photogram_industrial_authorization`. Publish the branch.
 2. Switch main to the earliest version of the app with: `git checkout 46772ee`.
+
+## II. Industrial Authorization Using Pundit
+
+1. The above changes are considered "painful". In the next lesson, we will learn to use some shortcuts with the pundit gem.
+2. create a new branch: `git checkout -b rg_authorization_with_pundit`. Publish the branch.
+
+#### Objectives
+
+1. create Pundit policies
+2. use before_action
+3. raise an exception
+4. using Pundit helper method to gain access to the methods in all other controllers
+5. incorporate Pundit into views
+6. implement inheritance, aliasing, etc using Ruby
+7. secure-by-default
 
 ***
 
