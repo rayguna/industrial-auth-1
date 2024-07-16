@@ -376,7 +376,49 @@ class PhotosController < ApplicationController
 end
 ```
 
-Navigating into a private user's photo should not be allowed. For example, looking at rails/db, we know that alethia is a private user and alexis is not private.Sign in with alexis and try to look at alethia's photo by vising https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/alethia. In this case, no pictures are shown. 
+Navigating into a private user's photo should not be allowed. For example, looking at rails/db, we know that alethia is a private user and alexis is not private. Sign in with alexis and try to look at alethia's photo by visiting https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/alethia. In this case, no pictures are shown. 
+
+
+#### C. Raising An Exception
+
+1. Let's raise an exception and generate an error message instead of redirecting if the current_user is not authorized as follows.
+
+```
+# app/controllers/photos_controller.rb
+
+class PhotosController < ApplicationController
+  # ...
+  before_action :ensure_user_is_authorized, only: [:show]
+  # ...
+    def ensure_user_is_authorized
+      if !PhotoPolicy.new(current_user, @photo).show?
+        raise Pundit::NotAuthorizedError, "not allowed"
+      end
+    end
+  # ...
+end
+```
+
+I tried to visit https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/alethia/liked, but no exception was raised.
+
+- Alternatively, we can redirect with a flash message, as follows:
+
+```
+# app/controllers/application_controller.rb
+
+class ApplicationController
+  # ...
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
+  private
+
+    def user_not_authorized
+      flash[:alert] = "You are not authorized to perform this action."
+      
+      redirect_back fallback_location: root_url
+    end
+end
+```
 
 Notes:
 - One security flaw in this app is that the /rails/db page is accessible.
