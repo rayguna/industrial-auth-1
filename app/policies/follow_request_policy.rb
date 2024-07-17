@@ -1,0 +1,2 @@
+class FollowRequestPolicy
+end

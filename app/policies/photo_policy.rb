@@ -8,6 +8,8 @@ class PhotoPolicy < ApplicationPolicy
     @photo = photo
   end
 
+  #methods: destroy, and view
+
   # Our policy is that a photo should only be seen by the owner or followers
   #   of the owner, unless the owner is not private in which case anyone can
   #   see it
@@ -17,4 +19,7 @@ class PhotoPolicy < ApplicationPolicy
       photo.owner.followers.include?(user)
   end
 
+  def destroy?
+    user == photo.owner
+  end
 end

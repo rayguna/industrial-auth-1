@@ -499,3 +499,82 @@ end
 Test it out by visiting: https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/photos/115
 
 Find out this route by going to https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/rails/info/routes and search for photo. To get the valid photo id, go to ..rails/db.
+
+3. Incorporate pundit to raise the exception. Add the command `include Pundit`.
+
+```
+# app/controllers/application_controller.rb
+
+class ApplicationController
+  include Pundit
+# ...
+```
+
+and
+
+```
+# app/controllers/photos_controller.rb
+
+class PhotosController < ApplicationController
+  # ...
+  def show
+    authorize @photo
+  end
+  # ...
+end
+```
+
+As before, test out the new approach of using Pundit by visiting https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/photos/115. Commenting and uncommenting `authorize @photo` command confirms that the change works.
+
+4. Shorthand. An easier way to incorporate the authorization, rather than specifying everywhere in each method you can just add at the top of the class. After this, you can comment the authorize @photo.
+
+```
+  before_action {authorize @photo }
+```
+
+And
+
+class PhotosController < ApplicationController
+  #...
+  def show
+    #authorize @photo
+  end
+  #...
+end
+```
+
+5. Make the following modification:
+
+```
+#app/controllers/application_controller.rb
+
+class ApplicationController
+  include Pundit
+  
+  after_action :verify_authorized, unless: :devise_controller?
+  after_action :verify_policy_scoped, only: :index, unless: :devise_controller?
+  #...
+```
+
+You will find that you can't access even the user main page (i.e., root URL) because it is set to users#feed. To remove the error, dd this to your app/policies/user_policy.rb file:
+
+```
+def feed?
+  true
+end
+```
+
+You also get an error saying that authorization not performed. To give authorization, add:
+
+```
+controlllers/users_controller.rb
+
+class UsersController < ApplicationController
+  before_action :set_user, only: %i[ show liked feed followers following discover ]
+
+  before_action {authorize @user }
+```
+
+### E. Implementing authorization throughout
+
+1. create the corresponding _policy.rb for comments.rb, follow_request.rb, photos.rb, and users.rb.

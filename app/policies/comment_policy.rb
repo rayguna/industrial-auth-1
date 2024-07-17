@@ -1,0 +1,3 @@
+class CommentPolicy
+
+end
