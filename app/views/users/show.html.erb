@@ -4,9 +4,7 @@
   </div>
 </div>
 
-<% truevalue = current_user == @user || !@user.private? || current_user.leaders.include?(@user) %>
-
-<% if truevalue %>
+<% if policy(@user).show? %>
   <div class="row mb-2">
     <div class="col-md-6 offset-md-3">
       <%= render "users/profile_nav", user: @user %>

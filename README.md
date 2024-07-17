@@ -422,3 +422,80 @@ end
 
 Notes:
 - One security flaw in this app is that the /rails/db page is accessible.
+
+
+#### D. Create a new branch - convention over configuration
+
+1. Revert to previous version and create a new branch from the head with: `git checkout -b rg_pundit_authorization`. Publish the branch.
+2. Incorporate photos exception with before_action
+
+```
+# app/controllers/photos_controller.rb
+
+class PhotosController < ApplicationController
+  before_action :set_photo, only: %i[ show edit update destroy ]
+  before_action :ensure_current_user_is_owner, only: [:destroy, :update, :edit]
+  before_action :ensure_user_is_authorized, only: [:show]
+  
+  # ...
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_photo
+      @photo = Photo.find(params[:id])
+    end
+
+    def ensure_current_user_is_owner
+      if current_user != @photo.owner
+        redirect_back fallback_location: root_url, alert: "You're not authorized for that."
+      end
+    end
+
+    def ensure_user_is_authorized
+      if !PhotoPolicy.new(current_user, @photo).show?
+        redirect_back fallback_location: root_url
+      end
+    end
+  # ...
+end
+```
+
+And:
+
+```
+# app/controllers/photos_controller.rb
+
+class PhotosController < ApplicationController
+  # ...
+  before_action :ensure_user_is_authorized, only: [:show]
+  # ...
+    def ensure_user_is_authorized
+      if !PhotoPolicy.new(current_user, @photo).show?
+        raise Pundit::NotAuthorizedError, "not allowed"
+      end
+    end
+  # ...
+end
+```
+
+Also, 
+
+```
+# app/controllers/application_controller.rb
+
+class ApplicationController
+  # ...
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
+  private
+
+    def user_not_authorized
+      flash[:alert] = "You are not authorized to perform this action."
+      
+      redirect_back fallback_location: root_url
+    end
+end
+```
+
+Test it out by visiting: https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/photos/115
+
+Find out this route by going to https://urban-spoon-wgr7j6ggj7fvjxr-3000.app.github.dev/rails/info/routes and search for photo. To get the valid photo id, go to ..rails/db.
