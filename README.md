@@ -606,4 +606,7 @@ git push origin main --force
 4. For all policy classes, except user, the class initialize inputs are user and method function. For user policy class, the inputs are current_user and user.
 5. Look through the policy files to understand how the policy methods are defined. These definitions are based on which operations you would like to over-ride. Note how oop and method calling is applied to activerecords. Also, note that edit and update go together for comments. Also note that all policies inherit from ApplicationPolicy.
 6. If in doubt what the method is called, go to the application_policy, which is where all default methods are initialized.
+7. TIPS:
+- INHERITANCE: Each of the policy inherits from application_policy.rb, therefore you don't have to call the def initialize each and every time. You also don't have to define the attr in each of the *_policy.rb, AS LONG AS you refer to the specific instance as record and the instance of the user as user consistently for each of the policy. 
+- Each of the policy classes requires two inputs, the first one being the instance of the logged in user and the second one being the instance of the specific policy. 
 ***
