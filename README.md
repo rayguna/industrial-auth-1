@@ -578,3 +578,24 @@ class UsersController < ApplicationController
 ### E. Implementing authorization throughout
 
 1. create the corresponding _policy.rb for comments.rb, follow_request.rb, photos.rb, and users.rb.
+2. Fixed the delete button. Previously used ajax delete command, rather than Ruby's. It should be:
+
+```
+data: { turbo_method: :delete }
+```
+
+Rather than:
+
+```
+data: { turbo_method: :delete }
+```
+
+3. To incorporate changes, the main needs to be at your branch. Don't just use git checkout <branch_name>. In this case, your changes won't be saved. It should be:
+
+```
+git checkout main
+git reset --hard <branch_name>
+git push origin main --force
+```
+
+***
