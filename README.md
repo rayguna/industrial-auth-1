@@ -600,7 +600,7 @@ git push origin main --force
 
 ### F. Enable Pundit
 
-1. Add in the *_controller.rb class, e.g., `before_action { authorize @photo }`
+1. Add in the *_controller.rb class, e.g., `before_action { authorize @comment || Comment}`. Note that your are giving access to both the parameter @comment and the ActiveRecords Commment. Both are essential! 
 2. create the corresponding `*_policy.rb`.
 3. Set the appropriate methods to true at certain desired conditions. Note that the methods within the policy return a boolean (i.e, true or false). 
 4. For all policy classes, except user, the class initialize inputs are user and method function. For user policy class, the inputs are current_user and user.
