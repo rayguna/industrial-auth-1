@@ -1,6 +1,8 @@
 class CommentPolicy < ApplicationPolicy
   attr_reader :user, :comment
 
+  debugger
+
   def initialize(user, comment)
     @user = user
     @comment = comment
@@ -15,5 +17,14 @@ class CommentPolicy < ApplicationPolicy
   def update?
     edit?
   end
+
+  # def create?
+  #   true
+  # end
+
+  # def new?
+  #   true
+  # end
+
 
 end

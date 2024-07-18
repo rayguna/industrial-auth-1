@@ -604,6 +604,6 @@ git push origin main --force
 2. create the corresponding `*_policy.rb`.
 3. Set the appropriate methods to true at certain desired conditions. Note that the methods within the policy return a boolean (i.e, true or false). 
 4. For all policy classes, except user, the class initialize inputs are user and method function. For user policy class, the inputs are current_user and user.
-5. Look through the policy files to understand how the policy methods are defined. These definitions are based on which operations you would like to over-ride.
-
+5. Look through the policy files to understand how the policy methods are defined. These definitions are based on which operations you would like to over-ride. Note how oop and method calling is applied to activerecords. Also, note that edit and update go together for comments. Also note that all policies inherit from ApplicationPolicy.
+6. If in doubt what the method is called, go to the application_policy, which is where all default methods are initialized.
 ***
