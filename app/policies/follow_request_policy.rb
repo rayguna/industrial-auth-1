@@ -10,7 +10,7 @@ class FollowRequestPolicy < ApplicationPolicy
   end
 
   def update?
-    user == record.sender
+    user == record.sender || user == record.recipient
   end
 
   def edit?
