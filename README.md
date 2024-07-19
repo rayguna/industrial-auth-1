@@ -692,8 +692,33 @@ git push origin main --force
 
   ### G. Create a pull request
   
-  1. Create a pull request by moving `main` to the previous version as follows:
+  1. Accidentally reverted to previous version without first creating a branch and almost lost the most recent version with:
   - Type `git checkout main`.
   - git reset --hard 2aabcf1
   - git push origin main --force
+
+2. Revert to the previous most recent version with:
+
+- git reflog:
+
+```
+2aabcf1 (HEAD -> main, origin/rg_pundit_authorization, origin/main, origin/HEAD) HEAD@{0}: reset: moving to 2aabcf1
+af4f898 HEAD@{1}: checkout: moving from main to main
+af4f898 HEAD@{2}: commit: updated README.md.
+852823e HEAD@{3}: commit: updated README.md.
+c84360a HEAD@{4}: commit: Fixed comment and follow_request policies.
+f767b92 HEAD@{5}: commit: fixed photo and user policies.
+bd9d027 HEAD@{6}: clone: from https://github.com/rayguna/industrial-auth-1.git
+```
+
+- git reset --hard af4f898
+- git push origin main --force
+
+3. Now, create a new branch with: 
+
+  1. First, create a branch from the head with: `git checkout -b rg_pundit`. Publish the branch.
+  2. Switch main to the earliest version of the app with: `git reset --hard 2aabcf1`.
+  3. Update main `git push origin main --force`.
+
+
 ***
