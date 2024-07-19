@@ -609,4 +609,54 @@ git push origin main --force
 7. TIPS:
 - INHERITANCE: Each of the policy inherits from application_policy.rb, therefore you don't have to call the def initialize each and every time. You also don't have to define the attr in each of the *_policy.rb, AS LONG AS you refer to the specific instance as record and the instance of the user as user consistently for each of the policy. 
 - Each of the policy classes requires two inputs, the first one being the instance of the logged in user and the second one being the instance of the specific policy. 
+
+8. Enable the relevant methods within comment activerecords.
+
+- Got the error message: `ActionController::ParameterMissing - param is missing or the value is empty: comment: `app/controllers/comments_controller.rb:83:in is_an_authorized_user'`.
+- To resolve this issue, set the is_an_authorized_user method as follows:
+
+```
+    def is_an_authorized_user
+      if params.key?(:comment)
+        photo = params[:comment][:photo_id]
+      else
+        comment = Comment.find(params[:id])
+        photo = comment.photo.id
+      end
+      
+      @photo = Photo.find(photo) #(params.fetch(:comment).fetch(:photo_id))
+      if current_user != @photo.owner && @photo.owner.private? && !current_user.leaders.include?(@photo.owner)
+        redirect_back fallback_location: root_url, alert: "Not authorized"
+      end
+    end
+```
+
+9. Enable the relevant methods within photo activerecords. 
+
+- Had to create a new method called show_photo to separate the existing method called photo. This is to separately display photos for followers, following, and public users. The show method shows the user page, whereas show_photo shows the partial photos page. This conditional statement is defined within the photo views/users/show.html.erb page:
+
+    ```
+    <div class="row mb-4">
+      <div class="col-md-6 offset-md-3">
+        <%= render "users/user", user: @user %>
+      </div>
+    </div>
+
+    <% if policy(@user).show_photos? %>
+      <div class="row mb-2">
+        <div class="col-md-6 offset-md-3">
+          <%= render "users/profile_nav", user: @user %>
+        </div>
+      </div>
+
+      <% @user.own_photos.each do |photo| %>
+        <div class="row mb-4">
+          <div class="col-md-6 offset-md-3">
+            <%= render "photos/photo", photo: photo %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+    ```
+
 ***

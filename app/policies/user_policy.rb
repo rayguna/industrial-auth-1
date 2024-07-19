@@ -1,5 +1,7 @@
 class UserPolicy < ApplicationPolicy
 
+  #methods: show (both for public, follower and followed; and private cases), feed, and discover.
+  
   def show_photos?
     record == user.username ||
      !record.private? || 
