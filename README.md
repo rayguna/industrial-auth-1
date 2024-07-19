@@ -658,5 +658,6 @@ git push origin main --force
       <% end %>
     <% end %>
     ```
-
+10. Enable the relevant methods within comment activerecords.
+- I found that editing the photo comment will redirect the page to user's feed page even when the edit is made in user's profile page. It is left this way because the feed page is regarded as the root_url. Furthermore, the user will be redirected to the root_url even when edit is made on the root_url. 
 ***

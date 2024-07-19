@@ -1,28 +1,24 @@
 class FollowRequestPolicy < ApplicationPolicy
 
-  #methods: create, destroy, update
+  #methods: create (always true), destroy and update (only owner)
   def create?
     true
   end
 
   def new?
     true
-    #create?
   end
 
   def update?
-    true
-    #create?
+    user == record.sender
   end
 
   def edit?
-    true
-    #create?
+    update?
   end
 
   def destroy?
-    true
-    #create?
+    update?
   end
 
 end
