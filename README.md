@@ -580,15 +580,15 @@ class UsersController < ApplicationController
 1. create the corresponding _policy.rb for comments.rb, follow_request.rb, photos.rb, and users.rb.
 2. Fixed the delete button. Previously used ajax delete command, rather than Ruby's. It should be:
 
-```
-data: { turbo_method: :delete }
-```
+  ```
+  data: { turbo_method: :delete }
+  ```
 
-Rather than:
+Rather than the following, which is used for Ajax:
 
-```
-data: { turbo_method: :delete }
-```
+  ```
+  method: :delete
+  ```
 
 3. To incorporate changes, the main needs to be at your branch. Don't just use git checkout <branch_name>. In this case, your changes won't be saved. It should be:
 
@@ -715,7 +715,7 @@ bd9d027 HEAD@{6}: clone: from https://github.com/rayguna/industrial-auth-1.git
 - git push origin main --force
 
 3. Now, create a new branch with: `git checkout -b rg_pundit`. Publish the branch. Push origin to rg_pundit: `git push origin rg_pundit`.
-4. Make sure you are working on branch and type: `git switch rg_pundit`.
+4. IMPORTANT! If you wish to continue making changes along a branch, make sure you are on the branch and type: `git switch rg_pundit`. Make sure that you are on a branch and not on main:
 
 ```
 dpi-pttl-013@MacBook-Pro-105 industrial-auth-1 % git
