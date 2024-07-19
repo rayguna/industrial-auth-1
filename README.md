@@ -714,12 +714,26 @@ bd9d027 HEAD@{6}: clone: from https://github.com/rayguna/industrial-auth-1.git
 - git reset --hard af4f898
 - git push origin main --force
 
-3. Now, create a new branch with: `git checkout -b rg_pundit`. Publish the branch. To be able to compare branched to generate a pull request, type:
+3. Now, create a new branch with: `git checkout -b rg_pundit`. Publish the branch. Push origin to rg_pundit: `git push origin rg_pundit`.
+4. Make sure you are working on branch and type: `git switch rg_pundit`.
 
-  ```
-  git push origin rg_pundit
-  git push origin rg_pundit_authorization
-  ```
-  
+```
+dpi-pttl-013@MacBook-Pro-105 industrial-auth-1 % git
+ status 
+On branch rg_pundit
+Your branch is up to date with 'origin/rg_pundit'.
+```
+
+5. Type:
+
+```
+git fetch origin
+
+git checkout main
+
+git reset --hard 2aabcf1
+
+git push origin main --force
+```
 
 ***
