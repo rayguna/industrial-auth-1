@@ -714,11 +714,12 @@ bd9d027 HEAD@{6}: clone: from https://github.com/rayguna/industrial-auth-1.git
 - git reset --hard af4f898
 - git push origin main --force
 
-3. Now, create a new branch with: 
+3. Now, create a new branch with: `git checkout -b rg_pundit`. Publish the branch. To be able to compare branched to generate a pull request, type:
 
-  1. First, create a branch from the head with: `git checkout -b rg_pundit`. Publish the branch.
-  2. Switch main to the earliest version of the app with: `git reset --hard 2aabcf1`.
-  3. Update main `git push origin main --force`.
-
+  ```
+  git push origin rg_pundit
+  git push origin rg_pundit_authorization
+  ```
+  
 
 ***
