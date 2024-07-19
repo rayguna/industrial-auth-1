@@ -633,7 +633,7 @@ git push origin main --force
 
 9. Enable the relevant methods within photo activerecords. 
 
-- Had to create a new method called show_photo to separate the existing method called photo. This is to separately display photos for followers, following, and public users. The show method shows the user page, whereas show_photo shows the partial photos page. This conditional statement is defined within the photo views/users/show.html.erb page:
+- Had to create a new method called show_photo to SEPARATE the existing method called photo. This is to separately display photos for followers, following, and public users. The show method shows the user page, whereas show_photo shows the partial photos page. This conditional statement is defined within the photo views/users/show.html.erb page:
 
     ```
     <div class="row mb-4">
@@ -660,4 +660,33 @@ git push origin main --force
     ```
 10. Enable the relevant methods within comment activerecords.
 - I found that editing the photo comment will redirect the page to user's feed page even when the edit is made in user's profile page. It is left this way because the feed page is regarded as the root_url. Furthermore, the user will be redirected to the root_url even when edit is made on the root_url. 
+11. Enable the relevant methods within follow_request activerecords. 
+- Set the methods within follow_request_policy.rb as follows:
+
+  ```
+  class FollowRequestPolicy < ApplicationPolicy
+
+    #methods: create (always true), destroy and update (only owner)
+    def create?
+      true
+    end
+
+    def new?
+      true
+    end
+
+    def update?
+      user == record.sender
+    end
+
+    def edit?
+      update?
+    end
+
+    def destroy?
+      update?
+    end
+
+  end
+  ```
 ***
