@@ -689,4 +689,11 @@ git push origin main --force
 
   end
   ```
+
+  ### G. Create a pull request
+  
+  1. Create a pull request by moving `main` to the previous version as follows:
+  - Type `git checkout main`.
+  - git reset --hard 2aabcf1
+  - git push origin main --force
 ***
