@@ -788,4 +788,18 @@ def set_photo
 end
 ```
 
+Solution: 
+
+Within controllrs/photos_controller.rb, change: 
+```
+before_action { authorize @photo || Photo}
+```
+
+To:
+```
+before_action { authorize (@photo || Photo)}
+```
+
+Do the same for followrequests, users, and comments. 
+
 ***
