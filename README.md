@@ -802,4 +802,32 @@ before_action { authorize (@photo || Photo)}
 
 Do the same for followrequests, users, and comments. 
 
+5. Make the methods dry:
+
+```
+policies/photo_policy.rb
+
+def create?
+  true
+end
+
+def new?
+  create?
+end
+```
+
+and
+
+```
+policies/follow_request_policy.rb
+
+def create?
+  true
+end
+
+def new?
+  create?
+end
+```
+
 ***

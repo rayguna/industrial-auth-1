@@ -23,7 +23,7 @@ class PhotoPolicy < ApplicationPolicy
   end
 
   def new?
-    true
+    create?
   end
 
   def edit?
