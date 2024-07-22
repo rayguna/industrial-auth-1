@@ -633,7 +633,7 @@ git push origin main --force
 
 9. Enable the relevant methods within photo activerecords. 
 
-- Had to create a new method called show_photo to SEPARATE the existing method called photo. This is to separately display photos for followers, following, and public users. The show method shows the user page, whereas show_photo shows the partial photos page. This conditional statement is defined within the photo views/users/show.html.erb page:
+- Had to create a new method called show_photo to SEPARATE the existing method called photo. This is to separately display photos for followers, following, and public users. The show method shows the user page, whereas show_photo shows the partial photos page. This conditional statement is defined within the photo views/users/show.html.erb page. Note that the name method `user` is a part of rails convention, so to differentiate we need to call this other method something else (i.e., `show_photo`). 
 
     ```
     <div class="row mb-4">
