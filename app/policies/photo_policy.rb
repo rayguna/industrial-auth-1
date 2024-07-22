@@ -2,7 +2,7 @@
 
 class PhotoPolicy < ApplicationPolicy
 
-  #methods: create (always true), destroy (only owner), and view (only owner, public, or followers)
+  #methods: create (always true), destroy (only owner), view (only owner, public, or followers), edit and update (only author).
 
   # Our policy is that a photo should only be seen by the owner or followers
   #   of the owner, unless the owner is not private in which case anyone can
@@ -15,6 +15,7 @@ class PhotoPolicy < ApplicationPolicy
 
   def destroy?
     user == record.owner
+    #user.username == record.owner.username
   end
 
   def create?
@@ -25,4 +26,11 @@ class PhotoPolicy < ApplicationPolicy
     true
   end
 
+  def edit?
+    user.username == record.owner.username
+  end
+
+  def update?
+    edit?
+  end
 end

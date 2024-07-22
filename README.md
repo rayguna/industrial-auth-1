@@ -736,4 +736,56 @@ git reset --hard 2aabcf1
 git push origin main --force
 ```
 
+### H. Edits
+
+1. switch to rg_pundit branch from main:
+
+```
+git fetch origin
+git checkout rg_pundit
+git pull origin rg_pundit
+```
+
+2. Remove is_an_authorized_user within app/controllers/comments_controller.rb because it has been replaced by Pundit:
+
+```
+before_action :is_an_authorized_user, only: [:destroy, :create]
+...
+    def is_an_authorized_user
+      if params.key?(:comment)
+        photo = params[:comment][:photo_id]
+      else
+        comment = Comment.find(params[:id])
+        photo = comment.photo.id
+      end
+      
+      @photo = Photo.find(photo) #(params.fetch(:comment).fetch(:photo_id))
+      if current_user != @photo.owner && @photo.owner.private? && !current_user.leaders.include?(@photo.owner)
+        redirect_back fallback_location: root_url, alert: "Not authorized"
+      end
+    end
+```
+
+3. Added edit and update policy to photo_policy.rb.
+```
+  def edit?
+    user.username == record.owner.username
+  end
+
+  def update?
+    edit?
+  end
+```
+
+4. ISSUE: Photo delete button is not working.
+
+```
+ActiveRecord::RecordNotFound at /photos/431
+Couldn't find Photo with 'id'=431
+
+def set_photo
+  @photo = Photo.find(params[:id])
+end
+```
+
 ***
