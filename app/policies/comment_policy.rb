@@ -1,6 +1,6 @@
 class CommentPolicy < ApplicationPolicy
 
-  #methods: create (always true); edit, update, and delete (only the author)
+  #methods: create and new (except for private); edit, update, and delete (only the author)
   def edit?
     user == record.author
   end
@@ -14,7 +14,7 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def new?
-    true
+    create?
   end
 
   def destroy?

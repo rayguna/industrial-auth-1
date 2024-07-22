@@ -802,6 +802,11 @@ before_action { authorize (@photo || Photo)}
 
 Do the same for followrequests, users, and comments. 
 
+- Repeated testing revealed that the issue persisted
+
+- The error pointed to the set-Photo method and that the photo no longer existed. This implies that the photo must have been destroyed. We later realized that in the photo destroy method it redirects the url back using the command `redirect_back fallback_location:` to. This command returns to the previous url and re-calls the set_photo method. To resolve this issue, change `redirect_back` to `redicrect_to`. Also, delete the `fallback_location` command. 
+
+
 5. Make the methods dry:
 
 ```
