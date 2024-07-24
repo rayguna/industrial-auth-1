@@ -578,3 +578,261 @@ class UsersController < ApplicationController
 ### E. Implementing authorization throughout
 
 1. create the corresponding _policy.rb for comments.rb, follow_request.rb, photos.rb, and users.rb.
+2. Fixed the delete button. Previously used ajax delete command, rather than Ruby's. It should be:
+
+  ```
+  data: { turbo_method: :delete }
+  ```
+
+Rather than the following, which is used for Ajax:
+
+  ```
+  method: :delete
+  ```
+
+3. To incorporate changes, the main needs to be at your branch. Don't just use git checkout <branch_name>. In this case, your changes won't be saved. It should be:
+
+```
+git checkout main
+git reset --hard <branch_name>
+git push origin main --force
+```
+
+### F. Enable Pundit
+
+1. Add in the *_controller.rb class, e.g., `before_action { authorize @comment || Comment}`. Note that your are giving access to both the parameter @comment and the ActiveRecords Commment. Both are essential! 
+2. create the corresponding `*_policy.rb`.
+3. Set the appropriate methods to true at certain desired conditions. Note that the methods within the policy return a boolean (i.e, true or false). 
+4. For all policy classes, except user, the class initialize inputs are user and method function. For user policy class, the inputs are current_user and user.
+5. Look through the policy files to understand how the policy methods are defined. These definitions are based on which operations you would like to over-ride. Note how oop and method calling is applied to activerecords. Also, note that edit and update go together for comments. Also note that all policies inherit from ApplicationPolicy.
+6. If in doubt what the method is called, go to the application_policy, which is where all default methods are initialized.
+7. TIPS:
+- INHERITANCE: Each of the policy inherits from application_policy.rb, therefore you don't have to call the def initialize each and every time. You also don't have to define the attr in each of the *_policy.rb, AS LONG AS you refer to the specific instance as record and the instance of the user as user consistently for each of the policy. 
+- Each of the policy classes requires two inputs, the first one being the instance of the logged in user and the second one being the instance of the specific policy. 
+
+8. Enable the relevant methods within comment activerecords.
+
+- Got the error message: `ActionController::ParameterMissing - param is missing or the value is empty: comment: `app/controllers/comments_controller.rb:83:in is_an_authorized_user'`.
+- To resolve this issue, set the is_an_authorized_user method as follows:
+
+```
+    def is_an_authorized_user
+      if params.key?(:comment)
+        photo = params[:comment][:photo_id]
+      else
+        comment = Comment.find(params[:id])
+        photo = comment.photo.id
+      end
+      
+      @photo = Photo.find(photo) #(params.fetch(:comment).fetch(:photo_id))
+      if current_user != @photo.owner && @photo.owner.private? && !current_user.leaders.include?(@photo.owner)
+        redirect_back fallback_location: root_url, alert: "Not authorized"
+      end
+    end
+```
+
+9. Enable the relevant methods within photo activerecords. 
+
+- Had to create a new method called show_photo to SEPARATE the existing method called photo. This is to separately display photos for followers, following, and public users. The show method shows the user page, whereas show_photo shows the partial photos page. This conditional statement is defined within the photo views/users/show.html.erb page. Note that the name method `user` is a part of rails convention, so to differentiate we need to call this other method something else (i.e., `show_photo`). 
+
+    ```
+    <div class="row mb-4">
+      <div class="col-md-6 offset-md-3">
+        <%= render "users/user", user: @user %>
+      </div>
+    </div>
+
+    <% if policy(@user).show_photos? %>
+      <div class="row mb-2">
+        <div class="col-md-6 offset-md-3">
+          <%= render "users/profile_nav", user: @user %>
+        </div>
+      </div>
+
+      <% @user.own_photos.each do |photo| %>
+        <div class="row mb-4">
+          <div class="col-md-6 offset-md-3">
+            <%= render "photos/photo", photo: photo %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+    ```
+10. Enable the relevant methods within comment activerecords.
+- I found that editing the photo comment will redirect the page to user's feed page even when the edit is made in user's profile page. It is left this way because the feed page is regarded as the root_url. Furthermore, the user will be redirected to the root_url even when edit is made on the root_url. 
+11. Enable the relevant methods within follow_request activerecords. 
+- Set the methods within follow_request_policy.rb as follows:
+
+  ```
+  class FollowRequestPolicy < ApplicationPolicy
+
+    #methods: create (always true), destroy and update (only owner)
+    def create?
+      true
+    end
+
+    def new?
+      true
+    end
+
+    def update?
+      user == record.sender
+    end
+
+    def edit?
+      update?
+    end
+
+    def destroy?
+      update?
+    end
+
+  end
+  ```
+
+  ### G. Create a pull request
+  
+  1. Accidentally reverted to previous version without first creating a branch and almost lost the most recent version with:
+  - Type `git checkout main`.
+  - git reset --hard 2aabcf1
+  - git push origin main --force
+
+2. Revert to the previous most recent version with:
+
+- git reflog:
+
+```
+2aabcf1 (HEAD -> main, origin/rg_pundit_authorization, origin/main, origin/HEAD) HEAD@{0}: reset: moving to 2aabcf1
+af4f898 HEAD@{1}: checkout: moving from main to main
+af4f898 HEAD@{2}: commit: updated README.md.
+852823e HEAD@{3}: commit: updated README.md.
+c84360a HEAD@{4}: commit: Fixed comment and follow_request policies.
+f767b92 HEAD@{5}: commit: fixed photo and user policies.
+bd9d027 HEAD@{6}: clone: from https://github.com/rayguna/industrial-auth-1.git
+```
+
+- git reset --hard af4f898
+- git push origin main --force
+
+3. Now, create a new branch with: `git checkout -b rg_pundit`. Publish the branch. Push origin to rg_pundit: `git push origin rg_pundit`.
+4. IMPORTANT! If you wish to continue making changes along a branch, make sure you are on the branch and type: `git switch rg_pundit`. Make sure that you are on a branch and not on main:
+
+```
+dpi-pttl-013@MacBook-Pro-105 industrial-auth-1 % git
+ status 
+On branch rg_pundit
+Your branch is up to date with 'origin/rg_pundit'.
+```
+
+5. Type:
+
+```
+git fetch origin
+
+git checkout main
+
+git reset --hard 2aabcf1
+
+git push origin main --force
+```
+
+### H. Edits
+
+1. switch to rg_pundit branch from main:
+
+```
+git fetch origin
+git checkout rg_pundit
+git pull origin rg_pundit
+```
+
+2. Remove is_an_authorized_user within app/controllers/comments_controller.rb because it has been replaced by Pundit:
+
+```
+before_action :is_an_authorized_user, only: [:destroy, :create]
+...
+    def is_an_authorized_user
+      if params.key?(:comment)
+        photo = params[:comment][:photo_id]
+      else
+        comment = Comment.find(params[:id])
+        photo = comment.photo.id
+      end
+      
+      @photo = Photo.find(photo) #(params.fetch(:comment).fetch(:photo_id))
+      if current_user != @photo.owner && @photo.owner.private? && !current_user.leaders.include?(@photo.owner)
+        redirect_back fallback_location: root_url, alert: "Not authorized"
+      end
+    end
+```
+
+3. Added edit and update policy to photo_policy.rb.
+```
+  def edit?
+    user.username == record.owner.username
+  end
+
+  def update?
+    edit?
+  end
+```
+
+4. ISSUE: Photo delete button is not working.
+
+```
+ActiveRecord::RecordNotFound at /photos/431
+Couldn't find Photo with 'id'=431
+
+def set_photo
+  @photo = Photo.find(params[:id])
+end
+```
+
+Solution: 
+
+Within controllrs/photos_controller.rb, change: 
+```
+before_action { authorize @photo || Photo}
+```
+
+To:
+```
+before_action { authorize (@photo || Photo)}
+```
+
+Do the same for followrequests, users, and comments. 
+
+- Repeated testing revealed that the issue persisted
+
+- The error pointed to the set-Photo method and that the photo no longer existed. This implies that the photo must have been destroyed. We later realized that in the photo destroy method it redirects the url back using the command `redirect_back fallback_location:` to. This command returns to the previous url and re-calls the set_photo method. To resolve this issue, change `redirect_back` to `redicrect_to`. Also, delete the `fallback_location` command. 
+
+
+5. Make the methods dry:
+
+```
+policies/photo_policy.rb
+
+def create?
+  true
+end
+
+def new?
+  create?
+end
+```
+
+and
+
+```
+policies/follow_request_policy.rb
+
+def create?
+  true
+end
+
+def new?
+  create?
+end
+```
+
+***

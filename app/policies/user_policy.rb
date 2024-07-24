@@ -1,23 +1,23 @@
-class UserPolicy
-  attr_reader :current_user, :user
+class UserPolicy < ApplicationPolicy
 
-  def initialize(current_user, user)
-    @current_user = current_user
-    @user = user
+  #methods: show (both for public, follower and followed; and private cases), feed, and discover.
+  
+  def show_photos?
+    record == user.username ||
+     !record.private? || 
+     record.followers.include?(user.username) || user.followers.include?(record)
   end
 
   def show?
-    user == current_user ||
-     !user.private? || 
-     user.followers.include?(current_user)
-  end
-
-  def feed?
     true
   end
 
+  def feed?
+    user == record
+  end
+
   def discover?
-    user == current_user
+    feed?
   end
 
 end
